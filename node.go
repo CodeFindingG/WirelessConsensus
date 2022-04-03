@@ -21,12 +21,18 @@ type node struct {
 func slotBreak() {
 	ifSlotChange = false
 	ifTranMessage = 0 // 重置消息池
-	fmt.Print(colorout.Cyan("Now time Slot" + strconv.Itoa(timeSlot)))
+	if ifPrint {
+		fmt.Print(colorout.Cyan("Now time Slot" + strconv.Itoa(timeSlot)))
+	}
 	for i := 0; i < nodeNumber; i++ { // 遍历所有节点
 		nodes[i].ifMessage = false
-		fmt.Print(colorout.Cyan(" " + nodes[i].State + nodes[i].CV))
+		if ifPrint {
+			fmt.Print(colorout.Cyan(" " + nodes[i].State + nodes[i].CV))
+		}
 	}
-	fmt.Println(" ")
+	if ifPrint {
+		fmt.Println(" ")
+	}
 }
 func checkL(nodeID int) int {
 	ans := 0
@@ -56,6 +62,16 @@ func checkMessage(nodeID int) bool {
 		}
 	}
 	return false
+}
+
+var tot float64
+var cnt float64
+
+func endProcess() {
+	cnt += 1
+	tmp := (timeSlot + 1) / 5
+	tot += float64(tmp)
+	fmt.Println("已结束,当前仿真耗时轮次:", tmp, " 平均达成共识轮次:", tot/cnt)
 }
 func simulation() {
 	ifContinue := true
@@ -148,8 +164,9 @@ func simulation() {
 				fmt.Println("")
 				for i := 0; i < nodeNumber; i++ {
 					if nodes[i].State == "L" && nodes[i].CV == "0" { // 满足调节。结束程序吧。
-						fmt.Println("已结束，当前时隙：", timeSlot)
-						ifContinue = false
+						endProcess()
+						//ifContinue = false
+						timeSlot = 1 // 持续
 					}
 				}
 			}

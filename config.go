@@ -21,6 +21,7 @@ type Config struct {
 	maxPosX    float64
 	maxPosY    float64
 	receiveR   float64 // instead of beta
+	timeSlot   int     // 单位 毫秒
 }
 
 func ConfigInitial() error {
@@ -40,6 +41,7 @@ func ConfigInitial() error {
 	Conf.maxPosX = viper.GetFloat64("maxPosX")
 	Conf.maxPosY = viper.GetFloat64("maxPosY")
 	Conf.receiveR = viper.GetFloat64("receiveR")
+	Conf.timeSlot = viper.GetInt("timeSlot")
 	yitami := viper.GetInt("yitami")
 	nnmi := viper.GetInt("nnmi")
 	yitastr := viper.GetString("yita")

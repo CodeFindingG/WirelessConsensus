@@ -15,8 +15,10 @@ const channelBuffer = 100
 
 var ifTranMessage int // judge if there is a node send a message,count the number
 var LNumber int       // Leader Number
+var ifPrint bool      // Control test output
 
 func main() {
+	ifPrint = false
 	ifSlotChange = false
 	ifTranMessage = 0
 	LNumber = 0
@@ -24,6 +26,7 @@ func main() {
 	slotChange = make(chan string, channelBuffer)
 	_ = ConfigInitial()
 	nodeNumber = Conf.nodeNumber
+	slotDuration = time.Duration(Conf.timeSlot) * time.Millisecond
 	NodeInit()
 	time.Sleep(200 * time.Millisecond)
 	go timeGenerate() // 生成时间

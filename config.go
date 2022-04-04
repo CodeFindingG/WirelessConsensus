@@ -22,6 +22,7 @@ type Config struct {
 	maxPosY    float64
 	receiveR   float64 // instead of beta
 	timeSlot   int     // 单位 毫秒
+	badNodes   int
 }
 
 func ConfigInitial() error {
@@ -42,6 +43,7 @@ func ConfigInitial() error {
 	Conf.maxPosY = viper.GetFloat64("maxPosY")
 	Conf.receiveR = viper.GetFloat64("receiveR")
 	Conf.timeSlot = viper.GetInt("timeSlot")
+	Conf.badNodes = int(viper.GetFloat64("badNodeRate") * float64(Conf.nodeNumber)) // 计算由多少个坏节点，也就是要实现F+1轮选举。
 	yitami := viper.GetInt("yitami")
 	nnmi := viper.GetInt("nnmi")
 	yitastr := viper.GetString("yita")

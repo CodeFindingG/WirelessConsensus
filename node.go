@@ -8,14 +8,16 @@ import (
 )
 
 type node struct {
-	State     string  // A:mining C:candidate S:silent L:leader
-	CountV    int     // Whatever I don't Know
-	CV        string  // null / 0 / 1
-	ifMessage bool    // 是否发了消息。
-	Message   string  // Not use
-	Block     string  // Not use
-	PosX      float64 // X postion
-	PosY      float64 // Y postion
+	State      string // A:mining C:candidate S:silent L:leader
+	CountV     int    // Whatever I don't Know
+	CV         string // null / 0 / 1
+	ifMessage  bool   // 是否发了消息。
+	ifSelected bool
+	ifBad      bool    // 是否是坏节点 坏的就是不干好事。
+	Message    string  // Not use
+	Block      string  // Not use
+	PosX       float64 // X postion
+	PosY       float64 // Y postion
 }
 
 func slotBreak() {
@@ -64,15 +66,13 @@ func checkMessage(nodeID int) bool {
 	return false
 }
 
-var tot float64
-var cnt float64
-
 func endProcess() {
 	cnt += 1
 	tmp := (timeSlot + 1) / 5
 	tot += float64(tmp)
 	fmt.Println("已结束,当前仿真耗时轮次:", tmp, " 平均达成共识轮次:", tot/cnt)
 }
+
 func simulation() {
 	ifContinue := true
 	for ifContinue {
@@ -194,6 +194,7 @@ func NodeInit() {
 		nodes[i].CV = "null"                          // The initial status
 		nodes[i].PosX = rand.Float64() * Conf.maxPosX // Generate X position
 		nodes[i].PosY = rand.Float64() * Conf.maxPosY // Generate Y position
+		nodes[i].ifSelected = false
 
 		//go nodeStart(i) // 启动很多很多的节点 Not Use! We just simulate it by for circle.
 	}

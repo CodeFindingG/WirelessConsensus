@@ -1,7 +1,6 @@
 package main
 
 import (
-	"GZsimulation/colorout"
 	"fmt"
 	"math/rand"
 	"strconv"
@@ -24,12 +23,12 @@ func slotBreak() {
 	ifSlotChange = false
 	ifTranMessage = 0 // 重置消息池
 	if ifPrint {
-		fmt.Print(colorout.Cyan("Now time Slot" + strconv.Itoa(timeSlot)))
+		fmt.Print("Now time Slot" + strconv.Itoa(timeSlot))
 	}
 	for i := 0; i < nodeNumber; i++ { // 遍历所有节点
 		nodes[i].ifMessage = false
 		if ifPrint {
-			fmt.Print(colorout.Cyan(" " + nodes[i].State + nodes[i].CV))
+			fmt.Print(" " + nodes[i].State + nodes[i].CV)
 		}
 	}
 	if ifPrint {
@@ -159,7 +158,7 @@ func simulation() {
 			}
 			if countL == 1 { // 只有1个
 				for i := 0; i < nodeNumber; i++ { // 遍历所有节点
-					fmt.Print(colorout.Green(nodes[i].State + nodes[i].CV + " "))
+					fmt.Print(nodes[i].State + nodes[i].CV + " ")
 				}
 				fmt.Println("")
 				for i := 0; i < nodeNumber; i++ {

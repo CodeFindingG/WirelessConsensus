@@ -1,7 +1,6 @@
 package main
 
 import (
-	"colorout"
 	"fmt"
 	"math/rand"
 	"strconv"
@@ -64,12 +63,12 @@ func checkMessageImprove(nodeID int) bool {
 }
 func roundPrint() {
 	if ifPrint {
-		fmt.Print(colorout.Green("Now round" + strconv.Itoa(countRound)))
+		fmt.Print("Now round" + strconv.Itoa(countRound))
 	}
 	for i := 0; i < nodeNumber; i++ { // 遍历所有节点
 		nodes[i].ifMessage = false
 		if ifPrint {
-			fmt.Print(colorout.Green(" " + nodes[i].State + nodes[i].CV))
+			fmt.Print(" " + nodes[i].State + nodes[i].CV)
 		}
 	}
 	if ifPrint {
@@ -132,8 +131,8 @@ func simulationImproved() {
 		if countLeader > Conf.badNodes {
 			tot += float64(countRound)
 			cnt += 1
-			fmt.Print(colorout.Cyan("已结束，共识耗时轮次" + strconv.Itoa(countRound) + " 节点总数：" + strconv.Itoa(Conf.nodeNumber) + " 坏节点总数：" + strconv.Itoa(Conf.badNodes)))
-			fmt.Println(colorout.Cyan(" 平均耗时轮次" + strconv.FormatFloat(tot/cnt, 'f', 10, 32)))
+			fmt.Print("已结束，共识耗时轮次" + strconv.Itoa(countRound) + " 节点总数：" + strconv.Itoa(Conf.nodeNumber) + " 坏节点总数：" + strconv.Itoa(Conf.badNodes))
+			fmt.Println(" 平均耗时轮次" + strconv.FormatFloat(tot/cnt, 'f', 10, 32))
 			simulationImprovedInit()
 			//time.Sleep(2 * time.Second)
 		}

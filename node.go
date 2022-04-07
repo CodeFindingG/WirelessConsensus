@@ -3,6 +3,7 @@ package main
 import (
 	"GZsimulation/colorout"
 	"fmt"
+	"math"
 	"math/rand"
 	"strconv"
 )
@@ -40,41 +41,60 @@ func checkL(nodeID int) int {
 		if i == nodeID || nodes[i].State != "L" {
 			continue
 		}
-		dis := (nodes[i].PosX-nodes[nodeID].PosX)*(nodes[i].PosX-nodes[nodeID].PosX) + (nodes[i].PosY-nodes[nodeID].PosY)*(nodes[i].PosY-nodes[nodeID].PosY)
-		if dis > Conf.receiveR*Conf.receiveR {
-			continue
-		} else {
-			ans += 1
-		}
+		ans += 1
+		/*		dis := (nodes[i].PosX-nodes[nodeID].PosX)*(nodes[i].PosX-nodes[nodeID].PosX) + (nodes[i].PosY-nodes[nodeID].PosY)*(nodes[i].PosY-nodes[nodeID].PosY)
+				if dis > Conf.receiveR*Conf.receiveR {
+					continue
+				} else {
+					ans += 1
+				}*/
 	}
 	return ans
 }
 func checkMessage(nodeID int) bool {
 	for i := 0; i < nodeNumber; i++ {
-		if i == nodeID || nodes[i].ifMessage == false { // 没发的不管
+		if i == nodeID {
 			continue
 		}
-		dis := (nodes[i].PosX-nodes[nodeID].PosX)*(nodes[i].PosX-nodes[nodeID].PosX) + (nodes[i].PosY-nodes[nodeID].PosY)*(nodes[i].PosY-nodes[nodeID].PosY)
-		if dis > Conf.receiveR*Conf.receiveR {
-			continue
-		} else {
+		if nodes[i].ifMessage == true {
 			return true
 		}
+
+		/*		if i == nodeID || nodes[i].ifMessage == false { // 没发的不管
+					continue
+				}
+				dis := (nodes[i].PosX-nodes[nodeID].PosX)*(nodes[i].PosX-nodes[nodeID].PosX) + (nodes[i].PosY-nodes[nodeID].PosY)*(nodes[i].PosY-nodes[nodeID].PosY)
+				if dis > Conf.receiveR*Conf.receiveR {
+					continue
+				} else {
+					return true
+				}*/
 	}
 	return false
 }
 
 var tot float64
 var cnt float64
+var slot2Times int
+var ifContinue bool = true
+var data []string
 
 func endProcess() {
 	cnt += 1
-	tmp := (timeSlot + 1) / 5
-	tot += float64(tmp)
-	fmt.Println("已结束,当前仿真耗时轮次:", tmp, " 平均达成共识轮次:", tot/cnt)
+	//tmp := (timeSlot + 1) / 5
+	tot += float64(slot2Times)
+	fmt.Println("已结束,当前仿真耗时轮次(slot2):", slot2Times, " 平均达成共识轮次(slot2):", tot/cnt)
+	if cnt == Conf.simulationTimes {
+		ifContinue = false
+		data = []string{}
+		data = append(data, strconv.Itoa(nodeNumber), strconv.FormatFloat(Conf.pv, 'f', 2, 64), strconv.FormatFloat(Conf.k, 'f', 2, 64), strconv.FormatFloat(Conf.k*math.Log10(float64(nodeNumber)), 'f', 2, 64), strconv.FormatFloat(Conf.simulationTimes, 'f', 0, 64), strconv.FormatFloat(tot/cnt, 'f', 2, 64))
+		StreamWriterFunc(data)
+		fmt.Println(colorout.Blue("结束程序,本次数据将追加到data.xlsx!"))
+	}
 }
+
 func simulation() {
-	ifContinue := true
+	//ifContinue := true
 	for ifContinue {
 		// Slot 1
 		for ifSlotChange == false {
@@ -93,29 +113,68 @@ func simulation() {
 		}
 		slotBreak()
 		// Slot 2
+		/*		for ifSlotChange == false {
+				for i := 0; i < nodeNumber; i++ { // 循环所有节点
+					if nodes[i].State == "C" { // 如果位于C状态。
+						ifTran := rand.Float64() // Generate a [0-1) number用于看要不要传消息
+						//fmt.Println(ifTran)
+						if ifTran <= Conf.pv { //发消息
+							nodes[i].ifMessage = true // 节点发送一条消息 消息池+1
+						} else { //监听
+							if checkMessage(i) { // 有消息了
+								nodes[i].State = "S" // 开始静默
+							} else {
+								//tmp := Conf.k * math.Log10(Conf.nn[0])
+								tmp := Conf.k //就是搞了多少次countv++呗。
+								if float64(nodes[i].CountV) > tmp {
+									nodes[i].State = "L"
+									LNumber += 1
+								}
+							}
+						}
+						nodes[i].CountV++
+					}
+				}
+			}*/
+
 		for ifSlotChange == false {
 			for i := 0; i < nodeNumber; i++ { // 循环所有节点
+				nodes[i].ifMessage = false
 				if nodes[i].State == "C" { // 如果位于C状态。
 					ifTran := rand.Float64() // Generate a [0-1) number用于看要不要传消息
 					//fmt.Println(ifTran)
 					if ifTran <= Conf.pv { //发消息
 						nodes[i].ifMessage = true // 节点发送一条消息 消息池+1
-					} else { //监听
+					}
+				}
+			}
+			for i := 0; i < nodeNumber; i++ {
+				if nodes[i].State == "C" {
+					if nodes[i].ifMessage == false {
 						if checkMessage(i) { // 有消息了
 							nodes[i].State = "S" // 开始静默
 						} else {
 							//tmp := Conf.k * math.Log10(Conf.nn[0])
-							tmp := Conf.k //就是搞了多少次countv++呗。
-							if float64(nodes[i].CountV) > tmp {
+							//tmp := Conf.k //就是搞了多少次countv++呗。
+							if float64(nodes[i].CountV) > Conf.k*math.Log10(float64(nodeNumber)) {
 								nodes[i].State = "L"
 								LNumber += 1
 							}
+							nodes[i].CountV++
 						}
 					}
-					nodes[i].CountV++
+					if nodes[i].ifMessage == true {
+						//tmp := Conf.k //就是搞了多少次countv++呗。
+						if float64(nodes[i].CountV) > Conf.k*math.Log10(float64(nodeNumber)) {
+							nodes[i].State = "L"
+							LNumber += 1
+						}
+						nodes[i].CountV++
+					}
 				}
 			}
 		}
+
 		slotBreak()
 		// Slot 3
 		for ifSlotChange == false {
@@ -134,7 +193,27 @@ func simulation() {
 		}
 		slotBreak()
 		// Slot 4
+		/*		for ifSlotChange == false {
+				for i := 0; i < nodeNumber; i++ {
+					if nodes[i].State == "L" {
+						if checkMessage(i) {
+							nodes[i].CV = "1"
+						} else {
+							nodes[i].CV = "0"
+						}
+					}
+					if nodes[i].State == "S" && nodes[i].CV == "1" {
+						nodes[i].ifMessage = true
+					}
+				}
+			}*/
+
 		for ifSlotChange == false {
+			for i := 0; i < nodeNumber; i++ {
+				if nodes[i].State == "S" && nodes[i].CV == "1" {
+					nodes[i].ifMessage = true
+				}
+			}
 			for i := 0; i < nodeNumber; i++ {
 				if nodes[i].State == "L" {
 					if checkMessage(i) {
@@ -143,11 +222,9 @@ func simulation() {
 						nodes[i].CV = "0"
 					}
 				}
-				if nodes[i].State == "S" && nodes[i].CV == "1" {
-					nodes[i].ifMessage = true
-				}
 			}
 		}
+
 		slotBreak()
 		// Slot 5
 		for ifSlotChange == false {
@@ -159,11 +236,17 @@ func simulation() {
 			}
 			if countL == 1 { // 只有1个
 				for i := 0; i < nodeNumber; i++ { // 遍历所有节点
-					fmt.Print(colorout.Green(nodes[i].State + nodes[i].CV + " "))
+					if nodes[i].State == "L" {
+
+						fmt.Print(colorout.Red(nodes[i].State + nodes[i].CV + " "))
+					} else {
+						fmt.Print(colorout.Green(nodes[i].State + nodes[i].CV + " "))
+					}
 				}
 				fmt.Println("")
 				for i := 0; i < nodeNumber; i++ {
 					if nodes[i].State == "L" && nodes[i].CV == "0" { // 满足调节。结束程序吧。
+						slot2Times = nodes[i].CountV - 1
 						endProcess()
 						//ifContinue = false
 						timeSlot = 1 // 持续

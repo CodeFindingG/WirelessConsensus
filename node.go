@@ -66,15 +66,23 @@ func checkMessage(nodeID int) bool {
 
 var tot float64
 var cnt float64
+var ifContinue bool = true
+var data []string
 
 func endProcess() {
 	cnt += 1
 	tmp := (timeSlot + 1) / 5
 	tot += float64(tmp)
 	fmt.Println("已结束,当前仿真耗时轮次:", tmp, " 平均达成共识轮次:", tot/cnt)
+	if cnt == Conf.simulationTimes {
+		ifContinue = false
+		data = []string{}
+		data = append(data, strconv.Itoa(nodeNumber), strconv.FormatFloat(Conf.pv, 'f', 2, 64), strconv.FormatFloat(Conf.k, 'f', 2, 64), strconv.FormatFloat(Conf.receiveR, 'f', 2, 64), strconv.FormatFloat(Conf.simulationTimes, 'f', 0, 64), strconv.FormatFloat(tot/cnt, 'f', 2, 64))
+		StreamWriterFunc(data)
+		fmt.Println(colorout.Blue("结束程序,本次数据将追加到data.xlsx!"))
+	}
 }
 func simulation() {
-	ifContinue := true
 	for ifContinue {
 		// Slot 1
 		for ifSlotChange == false {

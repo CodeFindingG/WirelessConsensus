@@ -1,7 +1,9 @@
 package main
 
 import (
+	"colorout"
 	"fmt"
+	"github.com/spf13/viper"
 	"math/rand"
 	"strconv"
 )
@@ -75,8 +77,11 @@ func roundPrint() {
 		fmt.Println(" ")
 	}
 }
+
+var ifContinue bool = true
+var data []string
+
 func simulationImproved() {
-	ifContinue := true
 	simulationImprovedInit()
 	for ifContinue {
 		for i := 0; i < nodeNumber; i++ {
@@ -133,6 +138,15 @@ func simulationImproved() {
 			cnt += 1
 			fmt.Print("已结束，共识耗时轮次" + strconv.Itoa(countRound) + " 节点总数：" + strconv.Itoa(Conf.nodeNumber) + " 坏节点总数：" + strconv.Itoa(Conf.badNodes))
 			fmt.Println(" 平均耗时轮次" + strconv.FormatFloat(tot/cnt, 'f', 10, 32))
+
+			if cnt == Conf.simulationTimes {
+				ifContinue = false
+				data = []string{}
+				data = append(data, strconv.Itoa(nodeNumber), strconv.Itoa(Conf.badNodes), strconv.FormatFloat(viper.GetFloat64("badNodeRate"), 'f', 2, 64), strconv.FormatFloat(Conf.k, 'f', 2, 64), strconv.FormatFloat(Conf.simulationTimes, 'f', 0, 64), strconv.FormatFloat(tot/cnt, 'f', 2, 64))
+				StreamWriterFunc(data)
+				fmt.Println(colorout.Blue("结束程序,本次数据将追加到faultTolerance.xlsx!"))
+			}
+
 			simulationImprovedInit()
 			//time.Sleep(2 * time.Second)
 		}
